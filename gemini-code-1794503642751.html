@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raiz y Allas Senegal — Plan de Construcción (Abéné)</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.55;
+            padding: 2rem 1.5rem;
+        }
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        header {
+            background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+            color: white;
+            padding: 2rem 2.5rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(15, 118, 110, 0.25);
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        header h1 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+        header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        /* Barra de progreso y casillas de toneladas */
+        .progress-card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+        }
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+        .progress-bar-bg {
+            background: #e2e8f0;
+            height: 14px;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #10b981, #059669);
+            height: 100%;
+            width: 37.5%;
+            border-radius: 999px;
+            transition: width 0.35s ease;
+        }
+
+        /* Cuadrícula de las 8 toneladas */
+        .tonnes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+        .tonne-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.65rem 0.75rem;
+            border-radius: 10px;
+            border: 1.5px solid #cbd5e1;
+            background: #f8fafc;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text);
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .tonne-box:hover {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        .tonne-box.checked {
+            background: #dcfce7;
+            border-color: #16a34a;
+            color: #15803d;
+        }
+        .tonne-box.checked span {
+            text-decoration: line-through;
+        }
+        .tonne-box input[type="checkbox"] {
+            accent-color: #16a34a;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1px dashed var(--border);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .progress-stats div strong {
+            color: var(--text);
+        }
+
+        /* Cuadrícula de fases */
+        .phases-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            align-items: stretch;
+        }
+        @media (max-width: 850px) {
+            .phases-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .phase-card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 1.75rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+        }
+        .phase-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Colores únicos por fase */
+        .phase-1 { border-top: 6px solid #d97706; background: #fffbeb; }
+        .phase-2 { border-top: 6px solid #0d9488; background: #f0fdfa; }
+        .phase-3 { border-top: 6px solid #2563eb; background: #eff6ff; }
+        .phase-4 { border-top: 6px solid #7c3aed; background: #f5f3ff; }
+        .phase-5 { border-top: 6px solid #db2777; background: #fdf2f8; }
+        .phase-6 { border-top: 6px solid #4f46e5; background: #eef2ff; }
+        .phase-7 { border-top: 6px solid #16a34a; background: #f0fdf4; }
+
+        .phase-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            gap: 0.75rem;
+        }
+        .phase-number {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+        .phase-1 .phase-number { color: #b45309; }
+        .phase-2 .phase-number { color: #0f766e; }
+        .phase-3 .phase-number { color: #1d4ed8; }
+        .phase-4 .phase-number { color: #6d28d9; }
+        .phase-5 .phase-number { color: #be185d; }
+        .phase-6 .phase-number { color: #4338ca; }
+        .phase-7 .phase-number { color: #15803d; }
+
+        .phase-title {
+            font-size: 1.15rem;
+            color: #0f172a;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+        .badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .badge-current { background: #fef3c7; color: #b45309; border: 1px solid #f59e0b; }
+        .badge-next { background: #ccfbf1; color: #0f766e; border: 1px solid #5eead4; }
+        .badge-pending { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+        .phase-desc {
+            font-style: italic;
+            color: var(--text-muted);
+            margin-bottom: 1.1rem;
+            font-size: 0.9rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px dashed rgba(0,0,0,0.08);
+        }
+
+        ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.65rem;
+            font-size: 0.92rem;
+        }
+        .checklist-item input[type="checkbox"] {
+            margin-top: 0.25rem;
+            width: 17px;
+            height: 17px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .checklist-item strong {
+            color: #0f172a;
+        }
+
+        .phase-card.full-width ul {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2.5rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Raiz y Allas Senegal</h1>
+            <p>Organización de la Obra en Abéné — Casa Principal (3 Habitaciones + 3 Baños en Suite)</p>
+        </header>
+
+        <!-- Seguimiento Interactivo de las 8 Toneladas de Cemento -->
+        <div class="progress-card">
+            <div class="progress-header">
+                <span>Avance de la Producción de Ladrillos (Fase 1)</span>
+                <span id="progress-percent" style="color: #059669;">37.5 % Realizado</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div id="progress-fill" class="progress-bar-fill"></div>
+            </div>
+
+            <!-- Casillas para marcar cada una de las 8 toneladas -->
+            <div class="tonnes-grid" id="tonnes-container">
+                <label class="tonne-box checked">
+                    <input type="checkbox" class="tonne-cb" checked onchange="updateTonnes()">
+                    <span>Tonelada 1</span>
+                </label>
+                <label class="tonne-box checked">
+                    <input type="checkbox" class="tonne-cb" checked onchange="updateTonnes()">
+                    <span>Tonelada 2</span>
+                </label>
+                <label class="tonne-box checked">
+                    <input type="checkbox" class="tonne-cb" checked onchange="updateTonnes()">
+                    <span>Tonelada 3</span>
+                </label>
+                <label class="tonne-box">
+                    <input type="checkbox" class="tonne-cb" onchange="updateTonnes()">
+                    <span>Tonelada 4</span>
+                </label>
+                <label class="tonne-box">
+                    <input type="checkbox" class="tonne-cb" onchange="updateTonnes()">
+                    <span>Tonelada 5</span>
+                </label>
+                <label class="tonne-box">
+                    <input type="checkbox" class="tonne-cb" onchange="updateTonnes()">
+                    <span>Tonelada 6</span>
+                </label>
+                <label class="tonne-box">
+                    <input type="checkbox" class="tonne-cb" onchange="updateTonnes()">
+                    <span>Tonelada 7</span>
+                </label>
+                <label class="tonne-box">
+                    <input type="checkbox" class="tonne-cb" onchange="updateTonnes()">
+                    <span>Tonelada 8</span>
+                </label>
+            </div>
+
+            <div class="progress-stats">
+                <div><strong>Cemento utilizado:</strong> <span id="tonnes-used">3 toneladas</span></div>
+                <div><strong>Cemento restante:</strong> <span id="tonnes-left">5 toneladas</span></div>
+                <div><strong>Objetivo total:</strong> 8 toneladas</div>
+            </div>
+        </div>
+
+        <!-- Cuadrícula de Fases -->
+        <div class="phases-grid">
+            
+            <!-- FASE 1 -->
+            <section class="phase-card phase-1">
+                <div class="phase-header">
+                    <div>
+                        <span class="phase-number">Fase 01</span>
+                        <h2 class="phase-title">Producción de Ladrillos y Acopio</h2>
+                    </div>
+                    <span id="phase1-badge" class="badge badge-current">En curso</span>
+                </div>
+                <p class="phase-desc">Base material sobre la que se levantará toda la estructura.</p>
+                <ul>
+                    <li class="checklist-item">
+                        <input type="checkbox" checked>
+                        <div><strong>Ritmo:</strong> 3 toneladas usadas de 8 (en 2 días). Marca cada tonelada arriba conforme se vayan fabricando.</div>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Curado:</strong> Regar los bloques diariamente con agua para asegurar su resistencia máxima.</div>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Suministro:</strong> Asegurar arena, grava y agua en Abéné de forma continua para evitar parones.</div>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- FASE 2 -->
+            <section class="phase-card phase-2">
+                <div class="phase-header">
+                    <div>
+                        <span class="phase-number">Fase 02</span>
+                        <h2 class="phase-title">Preparación del Terreno y Cimientos</h2>
+                    </div>
+                    <span class="badge badge-next">Siguiente</span>
+                </div>
+                <p class="phase-desc">Acondicionamiento de la parcela y anclaje al suelo.</p>
+                <ul>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Limpieza:</strong> Desbrozar y nivelar el espacio para la casa principal.</div>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Replanteo:</strong> Marcar sobre el terreno las 3 habitaciones, baños y muros de carga.</div>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Zanjas:</strong> Excavación para los cimientos (zapatas corridas).</div>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Hormigón y Solera:</strong> Vertido en cimientos y creación de la solera antihumedad.</div>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- FASE 3 -->
+            <section class="phase-card phase-3">
+                <div class="phase-header">
+                    <div>
+                        <span class="phase-number">Fase 03</span>
+                        <h2 class="phase-title">Estructura y Elevación de Muros</h2>
+                    </div>
+                    <span class="badge badge-pending">Próximamente</span>
+                </div>
+                <p class="phase-desc">Montaje del esqueleto de la vivienda con los ladrillos fabricados.</p>
+                <ul>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Pilares:</strong> Levantar columnas de hormigón armado conectadas a los cimientos.</div>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Albañilería:</strong> Levantar los muros exteriores y tabiques de las 3 suites.</div>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Dinteles y Zuncho:</strong> Reforzar los huecos y vaciar el zuncho perimetral superior.</div>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- FASE 4 -->
+            <section class="phase-card phase-4">
+                <div class="phase-header">
+                    <div>
+                        <span class="phase-number">Fase 04</span>
+                        <h2 class="phase-title">Cubierta y Tejado</h2>
+                    </div>
+                    <span class="badge badge-pending">Próximamente</span>
+                </div>
+                <p class="phase-desc">Aislamiento térmico y protección frente a la temporada de lluvias.</p>
+                <ul>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Estructura:</strong> Colocación de vigas de madera tratada o estructura metálica.</div>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Impermeabilización:</strong> Instalación de barreras contra filtraciones y aislamiento.</div>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Acabado:</strong> Instalación de tejas, paneles sándwich o techo ventilado.</div>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- FASE 5 -->
+            <section class="phase-card phase-5">
+                <div class="phase-header">
+                    <div>
+                        <span class="phase-number">Fase 05</span>
+                        <h2 class="phase-title">Fontanería y Electricidad</h2>
+                    </div>
+                    <span class="badge badge-pending">Próximamente</span>
+                </div>
+                <p class="phase-desc">Redes internas independientes para los 3 baños en suite.</p>
+                <ul>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Agua y Saneamiento:</strong> Tuberías (fría/caliente) y construcción de fosa séptica y pozo filtrante.</div>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Electricidad:</strong> Canalizaciones para iluminación, enchufes, ventiladores y aire acondicionado.</div>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- FASE 6 -->
+            <section class="phase-card phase-6">
+                <div class="phase-header">
+                    <div>
+                        <span class="phase-number">Fase 06</span>
+                        <h2 class="phase-title">Revestimientos, Solados y Carpintería</h2>
+                    </div>
+                    <span class="badge badge-pending">Próximamente</span>
+                </div>
+                <p class="phase-desc">Acabados interiores y exteriores del alojamiento.</p>
+                <ul>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Enfoscado:</strong> Aplicación de mortero en paredes interiores y fachadas.</div>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Alicatado:</strong> Pavimento general y revestimiento cerámico en los 3 baños.</div>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Carpintería:</strong> Instalación de puertas y ventanas (madera tratada o aluminio) con mosquiteras.</div>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- FASE 7 -->
+            <section class="phase-card phase-7 full-width">
+                <div class="phase-header">
+                    <div>
+                        <span class="phase-number">Fase 07 — Finalización</span>
+                        <h2 class="phase-title">Pintura, Equipamiento y Puesta a Punto</h2>
+                    </div>
+                    <span class="badge badge-current" style="background: #dcfce7; color: #166534; border-color: #86efac;">Apertura</span>
+                </div>
+                <p class="phase-desc">Últimos detalles antes de recibir a los primeros huéspedes en Abéné.</p>
+                <ul>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Pintura:</strong> Imprimación y acabado (colores claros recomendados contra el calor).</div>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Sanitarios:</strong> Instalación de inodoros, lavabos, duchas y grifería en los 3 baños.</div>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox">
+                        <div><strong>Mobiliario y Pruebas:</strong> Camas, armarios, iluminación y revisión completa de agua y luz.</div>
+                    </li>
+                </ul>
+            </section>
+
+        </div>
+
+        <footer>
+            Raiz y Allas Senegal · Planificación de Obra — Abéné
+        </footer>
+    </div>
+
+    <script>
+        function updateTonnes() {
+            const checkboxes = document.querySelectorAll('.tonne-cb');
+            const total = checkboxes.length;
+            let checkedCount = 0;
+            const state = [];
+
+            checkboxes.forEach((cb) => {
+                const label = cb.closest('.tonne-box');
+                if (cb.checked) {
+                    checkedCount++;
+                    label.classList.add('checked');
+                } else {
+                    label.classList.remove('checked');
+                }
+                state.push(cb.checked);
+            });
+
+            const remaining = total - checkedCount;
+            const percent = (checkedCount / total) * 100;
+
+            document.getElementById('progress-fill').style.width = percent + '%';
+            document.getElementById('progress-percent').textContent = percent + ' % Realizado';
+            document.getElementById('tonnes-used').textContent = checkedCount + (checkedCount > 1 ? ' toneladas' : ' tonelada');
+            document.getElementById('tonnes-left').textContent = remaining + (remaining > 1 ? ' toneladas' : ' tonelada');
+
+            const badge = document.getElementById('phase1-badge');
+            if (checkedCount === total) {
+                badge.textContent = 'Completado';
+                badge.style.background = '#dcfce7';
+                badge.style.color = '#166534';
+                badge.style.borderColor = '#86efac';
+            } else {
+                badge.textContent = 'En curso';
+                badge.style.background = '#fef3c7';
+                badge.style.color = '#b45309';
+                badge.style.borderColor = '#f59e0b';
+            }
+
+            localStorage.setItem('raizYAllasTonnes', JSON.stringify(state));
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = JSON.parse(localStorage.getItem('raizYAllasTonnes'));
+            if (saved && Array.isArray(saved)) {
+                const checkboxes = document.querySelectorAll('.tonne-cb');
+                checkboxes.forEach((cb, index) => {
+                    if (typeof saved[index] === 'boolean') {
+                        cb.checked = saved[index];
+                    }
+                });
+                updateTonnes();
+            }
+        });
+    </script>
+</body>
+</html>
